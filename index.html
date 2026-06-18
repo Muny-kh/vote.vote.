@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ការបោះឆ្នោតមុខម្ហូបប្រចាំថ្នាក់ 🍔🔥</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero fade-in">
+      <div class="hero__shine"></div>
+      <div class="hero__content">
+        <p class="eyebrow">ថ្នាក់របស់យើង • រសជាតិរបស់យើង</p>
+        <h1>ការបោះឆ្នោតមុខម្ហូបប្រចាំថ្នាក់ 🍔🔥</h1>
+        <p class="subtitle">ជ្រើសរើសមុខម្ហូបដែលអ្នកចូលចិត្តបំផុត</p>
+        <div class="countdown-card" aria-live="polite">
+          <span class="countdown-label">ពេលវេលានៅសល់</span>
+          <strong id="countdownText">បច្ចុប្បន្នមិនទាន់កំណត់ពេលបញ្ចប់</strong>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section fade-in" id="voteSection">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">បោះឆ្នោត</p>
+            <h2>ជ្រើសមុខម្ហូបដែលអ្នកស្រឡាញ់</h2>
+          </div>
+          <span class="status-pill" id="voteStatusPill">កំពុងរង់ចាំមុខម្ហូប</span>
+        </div>
+
+        <div class="closed-banner hidden" id="closedBanner">ការបោះឆ្នោតត្រូវបានបិទ</div>
+        <div class="food-grid" id="foodGrid"></div>
+        <div class="empty-state hidden" id="emptyState">
+          <div class="empty-plate" aria-hidden="true">
+            <span></span>
+            <i></i>
+          </div>
+          <h3>មិនទាន់មានមុខម្ហូបសម្រាប់បោះឆ្នោតនៅឡើយទេ</h3>
+        </div>
+      </section>
+
+      <section class="section fade-in" id="dashboardSection">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">ផ្ទាំងស្ថិតិ</p>
+            <h2>ស្ថិតិបោះឆ្នោត</h2>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-icon">🍽️</span>
+            <p>ចំនួនមុខម្ហូបសរុប</p>
+            <strong id="totalFoods">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon">💌</span>
+            <p>ចំនួនសន្លឹកឆ្នោតសរុប</p>
+            <strong id="totalVotes">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon">🏆</span>
+            <p>មុខម្ហូបដែលនាំមុខ</p>
+            <strong id="topFood">0</strong>
+          </article>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ចំណាត់ថ្នាក់</th>
+                <th>មុខម្ហូប</th>
+                <th>សន្លឹកឆ្នោត</th>
+              </tr>
+            </thead>
+            <tbody id="rankingBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section admin-section hidden fade-in" id="adminPanel">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">គ្រប់គ្រង</p>
+            <h2>ផ្ទាំងគ្រប់គ្រង</h2>
+          </div>
+          <button class="ghost-button ripple" id="logoutBtn" type="button">ចាកចេញ</button>
+        </div>
+
+        <div class="admin-layout">
+          <form class="control-card" id="addFoodForm">
+            <h3>បន្ថែមមុខម្ហូប</h3>
+            <label>
+              <span>ឈ្មោះមុខម្ហូប</span>
+              <input id="foodNameInput" type="text" autocomplete="off" placeholder="បញ្ចូលឈ្មោះមុខម្ហូប">
+            </label>
+            <label>
+              <span>តំណរូបភាព</span>
+              <input id="foodImageInput" type="url" autocomplete="off" placeholder="https://...">
+            </label>
+            <p class="form-error" id="addFoodError"></p>
+            <button class="primary-button ripple" type="submit">បន្ថែមមុខម្ហូប</button>
+          </form>
+
+          <form class="control-card" id="deadlineForm">
+            <h3>ពេលបញ្ចប់</h3>
+            <label>
+              <span>ថ្ងៃខែ</span>
+              <input id="deadlineDate" type="date">
+            </label>
+            <label>
+              <span>ម៉ោង</span>
+              <input id="deadlineTime" type="time">
+            </label>
+            <p class="current-deadline" id="currentDeadline">បច្ចុប្បន្នមិនទាន់កំណត់ពេលបញ្ចប់</p>
+            <button class="primary-button ripple" type="submit">រក្សាទុកពេលបញ្ចប់</button>
+          </form>
+
+          <form class="control-card" id="passwordForm">
+            <h3>ប្តូរពាក្យសម្ងាត់</h3>
+            <label>
+              <span>ពាក្យសម្ងាត់ចាស់</span>
+              <input id="oldPassword" type="password" autocomplete="current-password" placeholder="••••••••">
+            </label>
+            <label>
+              <span>ពាក្យសម្ងាត់ថ្មី</span>
+              <input id="newPassword" type="password" autocomplete="new-password" placeholder="••••••••">
+            </label>
+            <p class="form-error" id="passwordError"></p>
+            <button class="primary-button ripple" type="submit">រក្សាទុក</button>
+          </form>
+
+          <div class="control-card">
+            <h3>ចាប់ផ្តើមថ្មី</h3>
+            <p class="current-deadline">សម្អាតសន្លឹកឆ្នោតទាំងអស់ ហើយអនុញ្ញាតឱ្យ browser នេះបោះឆ្នោតម្ដងទៀត</p>
+            <button class="danger-button ripple" id="resetVotesBtn" type="button">សម្អាតសន្លឹកឆ្នោត</button>
+          </div>
+        </div>
+
+        <div class="admin-foods">
+          <h3>បញ្ជីមុខម្ហូប</h3>
+          <div class="admin-food-list" id="adminFoodList"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <button class="admin-fab ripple" id="adminFab" type="button" aria-label="បើកចូលគ្រប់គ្រង">✏️</button>
+
+  <div class="modal-backdrop hidden" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <form class="login-card scale-in" id="loginForm">
+      <button class="modal-close" id="closeModal" type="button" aria-label="បិទ">×</button>
+      <h2 id="loginTitle">ចូលគ្រប់គ្រង</h2>
+      <label>
+        <span>ពាក្យសម្ងាត់</span>
+        <input id="loginPassword" type="password" autocomplete="current-password" placeholder="បញ្ចូលពាក្យសម្ងាត់">
+      </label>
+      <p class="form-error" id="loginError"></p>
+      <button class="primary-button ripple" type="submit">ចូលគ្រប់គ្រង</button>
+    </form>
+  </div>
+
+  <div class="toast-area" id="toastArea" aria-live="polite"></div>
+  <div class="spinner-overlay hidden" id="spinnerOverlay">
+    <div class="spinner" aria-label="កំពុងដំណើរការ"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
