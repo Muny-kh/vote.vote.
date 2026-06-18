@@ -511,6 +511,68 @@ input:focus {
   line-height: 1.55;
 }
 
+.switch-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 2px solid var(--navy);
+  border-radius: 18px;
+  background: var(--mint-soft);
+}
+
+.switch-row span {
+  display: grid;
+  gap: 4px;
+}
+
+.switch-row small {
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.switch-row input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch-row i {
+  position: relative;
+  width: 66px;
+  height: 38px;
+  border: 2px solid var(--navy);
+  border-radius: 999px;
+  background: #e7ebf0;
+  box-shadow: 4px 4px 0 var(--navy);
+  transition: background 0.2s ease;
+}
+
+.switch-row i::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--navy);
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s ease;
+}
+
+.switch-row input:checked + i {
+  background: var(--mint);
+}
+
+.switch-row input:checked + i::after {
+  transform: translateX(28px);
+}
+
 .ghost-button,
 .edit-button {
   background: white;
@@ -555,6 +617,12 @@ input:focus {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 14px;
+}
+
+.publish-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .edit-fields {
@@ -782,7 +850,8 @@ input:focus {
     grid-template-columns: 1fr;
   }
 
-  .admin-actions {
+  .admin-actions,
+  .publish-actions {
     grid-template-columns: 1fr;
   }
 
