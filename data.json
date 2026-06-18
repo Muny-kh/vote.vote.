@@ -1,6 +1,55 @@
 {
-  "updatedAt": "",
-  "deadline": "",
-  "votingEnabled": true,
-  "foods": []
+  "updatedAt": "2026-06-18T08:40:05.366Z",
+  "deadline": "2026-07-04T17:00:00",
+  "votingEnabled": false,
+  "foods": [
+    {
+      "id": "79084be8-46b0-40f5-9f9e-55b2ec90b26c",
+      "name": "នំបញ្ចុក - ណាំយ៉ាប្រហិតបាល់ត្រី",
+      "image": "https://i.pinimg.com/1200x/d0/4e/38/d04e3853bb0216f69ad05c32859edba5.jpg",
+      "votes": 0
+    },
+    {
+      "id": "dc78e265-23b4-497e-bc9a-bb9a690781bb",
+      "name": "ញាំ - មីសួរ - គ្រឿងសមុទ្រ",
+      "image": "https://i.pinimg.com/736x/8a/75/93/8a7593172d63809491e99edf7a172bd4.jpg",
+      "votes": 0
+    },
+    {
+      "id": "82e7c80c-5f77-4d41-bac1-c5d8d4dc58bb",
+      "name": "សារ៉ាម៉ាន់ - សាច់គោ",
+      "image": "https://i.ytimg.com/vi/hWMB1L3IByA/maxresdefault.jpg",
+      "votes": 0
+    },
+    {
+      "id": "d0f9d92a-534b-4794-964b-e3927446df5b",
+      "name": "ស៊ុបយ៉ៅហន",
+      "image": "https://i.ytimg.com/vi/ElkrV6QKKAA/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCRPyDhCHP9EQbTpueGeUyS03-I0A",
+      "votes": 0
+    },
+    {
+      "id": "fb10ce7b-1b43-42f3-92d0-fc30c88ef3ea",
+      "name": "ផាកឡូវ - សាច់មាន់",
+      "image": "https://i.pinimg.com/1200x/2f/f7/3f/2ff73f3c5326e7395152288d3b1800a8.jpg",
+      "votes": 0
+    },
+    {
+      "id": "bdd4e878-45c6-427e-be50-ecaf9139ed36",
+      "name": "ម្ជូរខ្ទិះ-បង្គារ",
+      "image": "https://i.pinimg.com/1200x/e6/ad/c1/e6adc1d808ff2a4f735003d61a1ae1e6.jpg",
+      "votes": 0
+    },
+    {
+      "id": "36366b57-6eed-4f88-b76b-0ed2103e6df5",
+      "name": "សាច់គោចៀន - ទឹកម្រេច",
+      "image": "https://i.pinimg.com/736x/e5/40/6c/e5406ce8c2f057e09b15f1f0bc969fe8.jpg",
+      "votes": 0
+    },
+    {
+      "id": "cfa7433a-be9e-4f32-b685-d079e3a9ddea",
+      "name": "សាច់គោ - បំពងល្ងរ",
+      "image": "https://i.pinimg.com/736x/2d/ea/05/2dea05b4662d104832b912c28a7ba6d2.jpg",
+      "votes": 0
+    }
+  ]
 }
