@@ -5,7 +5,9 @@
     foods: "class_food_vote_foods",
     voted: "class_food_vote_voted",
     deadline: "class_food_vote_deadline",
-    password: "class_food_vote_password"
+    password: "class_food_vote_password",
+    votingEnabled: "class_food_vote_enabled",
+    dataSignature: "class_food_vote_data_signature"
   };
 
   const DEFAULT_PASSWORD = "Admin@2026";
@@ -14,6 +16,7 @@
   let hasVoted = localStorage.getItem(STORAGE_KEYS.voted) === "true";
   let deadline = localStorage.getItem(STORAGE_KEYS.deadline) || "";
   let password = localStorage.getItem(STORAGE_KEYS.password) || DEFAULT_PASSWORD;
+  let votingEnabled = localStorage.getItem(STORAGE_KEYS.votingEnabled) !== "false";
   let editingId = null;
 
   const elements = {
@@ -34,6 +37,9 @@
     closeModal: document.getElementById("closeModal"),
     adminPanel: document.getElementById("adminPanel"),
     logoutBtn: document.getElementById("logoutBtn"),
+    votingToggle: document.getElementById("votingToggle"),
+    votingToggleText: document.getElementById("votingToggleText"),
+    votingModeNote: document.getElementById("votingModeNote"),
     addFoodForm: document.getElementById("addFoodForm"),
     foodNameInput: document.getElementById("foodNameInput"),
     foodImageInput: document.getElementById("foodImageInput"),
@@ -47,6 +53,8 @@
     newPassword: document.getElementById("newPassword"),
     passwordError: document.getElementById("passwordError"),
     resetVotesBtn: document.getElementById("resetVotesBtn"),
+    exportDataBtn: document.getElementById("exportDataBtn"),
+    copyDataBtn: document.getElementById("copyDataBtn"),
     adminFoodList: document.getElementById("adminFoodList"),
     toastArea: document.getElementById("toastArea"),
     spinnerOverlay: document.getElementById("spinnerOverlay")
@@ -54,8 +62,9 @@
 
   document.addEventListener("DOMContentLoaded", init);
 
-  function init() {
+  async function init() {
     normalizeStoredState();
+    await loadPublishedData();
     attachEvents();
     hydrateDeadlineInputs();
     renderAll();
@@ -75,10 +84,13 @@
 
     elements.loginForm.addEventListener("submit", handleLogin);
     elements.logoutBtn.addEventListener("click", handleLogout);
+    elements.votingToggle.addEventListener("change", handleVotingToggle);
     elements.addFoodForm.addEventListener("submit", handleAddFood);
     elements.deadlineForm.addEventListener("submit", handleDeadline);
     elements.passwordForm.addEventListener("submit", handlePasswordChange);
     elements.resetVotesBtn.addEventListener("click", handleResetVotes);
+    elements.exportDataBtn.addEventListener("click", handleExportData);
+    elements.copyDataBtn.addEventListener("click", handleCopyData);
 
     elements.foodGrid.addEventListener("click", (event) => {
       const button = event.target.closest("[data-vote-id]");
@@ -103,14 +115,45 @@
     localStorage.setItem(STORAGE_KEYS.foods, JSON.stringify(foods));
   }
 
+  async function loadPublishedData() {
+    if (window.location.protocol === "file:") return;
+
+    try {
+      const response = await fetch(`data.json?v=${Date.now()}`, {
+        cache: "no-store"
+      });
+      if (!response.ok) return;
+
+      const data = await response.json();
+      if (!data || !Array.isArray(data.foods) || !data.foods.length) return;
+
+      const nextFoods = normalizeFoods(data.foods);
+      if (!nextFoods.length) return;
+
+      const signature = data.updatedAt || JSON.stringify(nextFoods);
+      const currentSignature = localStorage.getItem(STORAGE_KEYS.dataSignature);
+      const shouldLoad = !foods.length || (!hasVoted && currentSignature !== signature);
+
+      if (!shouldLoad) return;
+
+      foods = nextFoods;
+      deadline = typeof data.deadline === "string" ? data.deadline : "";
+      votingEnabled = data.votingEnabled !== false;
+      hasVoted = false;
+
+      saveFoods();
+      localStorage.setItem(STORAGE_KEYS.deadline, deadline);
+      localStorage.setItem(STORAGE_KEYS.votingEnabled, votingEnabled ? "true" : "false");
+      localStorage.setItem(STORAGE_KEYS.dataSignature, signature);
+      localStorage.removeItem(STORAGE_KEYS.voted);
+    } catch (error) {
+      console.warn("មិនអាចទាញយក data.json បាន", error);
+    }
+  }
+
   function normalizeStoredState() {
     if (!Array.isArray(foods)) foods = [];
-    foods = foods.map((food) => ({
-      id: food.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      name: String(food.name || "").trim(),
-      image: String(food.image || "").trim(),
-      votes: Number.isFinite(Number(food.votes)) ? Number(food.votes) : 0
-    })).filter((food) => food.name && food.image);
+    foods = normalizeFoods(foods);
 
     if (!foods.length && hasVoted) {
       hasVoted = false;
@@ -118,6 +161,15 @@
     }
 
     saveFoods();
+  }
+
+  function normalizeFoods(items) {
+    return items.map((food) => ({
+      id: food.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      name: String(food.name || "").trim(),
+      image: String(food.image || "").trim(),
+      votes: Number.isFinite(Number(food.votes)) ? Number(food.votes) : 0
+    })).filter((food) => food.name && food.image);
   }
 
   function renderAll() {
@@ -131,30 +183,43 @@
     return Boolean(deadline) && Date.now() >= new Date(deadline).getTime();
   }
 
+  function isVotingClosed() {
+    return !votingEnabled || isDeadlinePassed();
+  }
+
   function renderFoods() {
-    const closed = isDeadlinePassed();
+    const closed = isVotingClosed();
+    const deadlinePassed = isDeadlinePassed();
     const hasFoods = foods.length > 0;
 
     elements.emptyState.classList.toggle("hidden", hasFoods);
     elements.foodGrid.classList.toggle("hidden", !hasFoods);
     elements.closedBanner.classList.toggle("hidden", !closed);
+    elements.closedBanner.textContent = !votingEnabled
+      ? "ការបោះឆ្នោតមិនទាន់បើកនៅឡើយទេ"
+      : "ការបោះឆ្នោតត្រូវបានបិទ";
 
     if (!hasFoods) {
       elements.voteStatusPill.textContent = "កំពុងរង់ចាំមុខម្ហូប";
       elements.foodGrid.innerHTML = "";
+      renderVotingToggle();
       return;
     }
 
-    elements.voteStatusPill.textContent = closed
-      ? "ការបោះឆ្នោតត្រូវបានបិទ"
+    elements.voteStatusPill.textContent = !votingEnabled
+      ? "មិនទាន់បើកឱ្យបោះឆ្នោត"
+      : deadlinePassed
+        ? "ការបោះឆ្នោតត្រូវបានបិទ"
       : hasVoted
         ? "អ្នកបានបោះឆ្នោតរួចហើយ ✅"
         : "បើកឱ្យបោះឆ្នោត";
 
     elements.foodGrid.innerHTML = foods.map((food) => {
       const disabled = hasVoted || closed;
-      const label = closed
-        ? "ការបោះឆ្នោតត្រូវបានបិទ"
+      const label = !votingEnabled
+        ? "មិនទាន់បើកឱ្យបោះឆ្នោត"
+        : deadlinePassed
+          ? "ការបោះឆ្នោតត្រូវបានបិទ"
         : hasVoted
           ? "អ្នកបានបោះឆ្នោតរួចហើយ ✅"
           : "បោះឆ្នោត 💖";
@@ -179,9 +244,15 @@
     elements.foodGrid.querySelectorAll(".ripple").forEach((button) => {
       button.addEventListener("click", createRipple);
     });
+    renderVotingToggle();
   }
 
   function voteForFood(id) {
+    if (!votingEnabled) {
+      showToast("ការបោះឆ្នោតមិនទាន់បើកនៅឡើយទេ", "error");
+      return;
+    }
+
     if (hasVoted) {
       showToast("អ្នកបានបោះឆ្នោតរួចហើយ ✅", "error");
       return;
@@ -461,6 +532,24 @@
     showToast("បានរក្សាទុកពេលបញ្ចប់ ✅", "success");
   }
 
+  function handleVotingToggle() {
+    votingEnabled = elements.votingToggle.checked;
+    localStorage.setItem(STORAGE_KEYS.votingEnabled, votingEnabled ? "true" : "false");
+    renderFoods();
+    updateCountdown();
+    showToast(votingEnabled ? "បានបើកឱ្យបោះឆ្នោត ✅" : "បានបិទការបោះឆ្នោត", votingEnabled ? "success" : "error");
+  }
+
+  function renderVotingToggle() {
+    elements.votingToggle.checked = votingEnabled;
+    elements.votingToggleText.textContent = votingEnabled
+      ? "កំពុងបើកឱ្យបោះឆ្នោត"
+      : "មិនទាន់បើកឱ្យបោះឆ្នោត";
+    elements.votingModeNote.textContent = votingEnabled
+      ? "សិស្សអាចបោះឆ្នោតបាន នៅពេលមិនទាន់ផុតពេលបញ្ចប់"
+      : "សិស្សមិនអាចបោះឆ្នោតបានទេ រហូតដល់ Admin បើកវិញ";
+  }
+
   function hydrateDeadlineInputs() {
     if (!deadline) return;
     const date = new Date(deadline);
@@ -470,6 +559,14 @@
   }
 
   function updateCountdown() {
+    if (!votingEnabled) {
+      elements.countdownText.textContent = "ការបោះឆ្នោតមិនទាន់បើកនៅឡើយទេ";
+      elements.currentDeadline.textContent = deadline
+        ? `ពេលបញ្ចប់បច្ចុប្បន្ន៖ ${formatDateTime(deadline)}`
+        : "បច្ចុប្បន្នមិនទាន់កំណត់ពេលបញ្ចប់";
+      return;
+    }
+
     if (!deadline) {
       elements.countdownText.textContent = "បច្ចុប្បន្នមិនទាន់កំណត់ពេលបញ្ចប់";
       elements.currentDeadline.textContent = "បច្ចុប្បន្នមិនទាន់កំណត់ពេលបញ្ចប់";
@@ -538,6 +635,45 @@
     saveFoods();
     renderAll();
     showToast("បានសម្អាតសន្លឹកឆ្នោត ✅", "success");
+  }
+
+  function buildPublishData() {
+    return {
+      updatedAt: new Date().toISOString(),
+      deadline,
+      votingEnabled,
+      foods: foods.map((food) => ({
+        id: food.id,
+        name: food.name,
+        image: food.image,
+        votes: 0
+      }))
+    };
+  }
+
+  function handleExportData() {
+    const data = JSON.stringify(buildPublishData(), null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "data.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    showToast("បានទាញយក data.json ✅", "success");
+  }
+
+  async function handleCopyData() {
+    const data = JSON.stringify(buildPublishData(), null, 2);
+
+    try {
+      await navigator.clipboard.writeText(data);
+      showToast("បានចម្លងទិន្នន័យ ✅", "success");
+    } catch (error) {
+      showToast("មិនអាចចម្លងបាន សូមទាញយក data.json ជំនួស", "error");
+    }
   }
 
   function showToast(message, type) {
